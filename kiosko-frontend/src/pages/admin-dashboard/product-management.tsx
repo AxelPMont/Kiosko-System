@@ -281,16 +281,6 @@ const ProductManagement: React.FC = () => {
       barcode: product.barcode,
     });
 
-    // Log después de setear el formData
-    console.log("FormData después de setear:", {
-      name: product.name,
-      categoryId: product.categoryId,
-      price: product.price,
-      stock: product.stock,
-      minStock: product.minStock,
-      barcode: product.barcode,
-    });
-
     setIsEditModalOpen(true);
   };
 

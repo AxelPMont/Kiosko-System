@@ -34,6 +34,12 @@ export const loginService = (nombreUsuario: string, clave: string) => {
 
 // Caja
 export const abrirCaja = (data: any) => api.post("/caja/abrir", data);
+export const getVentaActiva = (idUsuario: number) => api.get(`/venta/activa/${idUsuario}`);
+export const cerrarCaja = (idCaja: number, montoCierre: number) => {
+  return api.put(`/caja/${idCaja}/cerrar`, null, {
+    params: { montoCierre },
+  });
+};
 
 // Venta
 export const registrarVenta = (data) => api.post("/venta/registrar", data);
@@ -51,6 +57,7 @@ export const actualizarProducto = (id: number, data: any) => api.put(`/producto/
 export const eliminarProducto = (id: number) => api.delete(`/producto/${id}`);
 export const getProductosPorCategoria = () => api.get("/producto/resumen-categorias");
 export const getProductosBajoStock = () => api.get("/producto/bajo-stock");
+export const getProductoPorCodigo = (codigo: string) => api.get(`/producto/codigo/${codigo}`);
 
 // Categorias
 export const getCategoria = () => api.get("/categoria-producto");

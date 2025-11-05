@@ -4,7 +4,6 @@ import Sidebar from "../../components/layout/sidebar";
 import Header from "../../components/layout/header";
 import OpenRegister from "./open-register";
 import Sales from "./sales";
-import CloseRegister from "./close-register";
 
 const WorkerDashboard: React.FC = () => {
   const { path } = useRouteMatch();
@@ -18,8 +17,6 @@ const WorkerDashboard: React.FC = () => {
       setPageTitle("Apertura de Caja");
     } else if (pathname.includes("/sales")) {
       setPageTitle("Registro de Ventas");
-    } else if (pathname.includes("/close-register")) {
-      setPageTitle("Cierre de Caja");
     } else {
       setPageTitle("Apertura de Caja");
     }
@@ -42,9 +39,6 @@ const WorkerDashboard: React.FC = () => {
             </Route>
             <Route path={`${path}/sales`}>
               <Sales />
-            </Route>
-            <Route path={`${path}/close-register`}>
-              <CloseRegister />
             </Route>
           </Switch>
         </main>

@@ -21,7 +21,6 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
   const workerNavItems: NavItem[] = [
     { label: "Apertura de Caja", icon: "lucide:box", path: "/worker/open-register" },
     { label: "Ventas", icon: "lucide:shopping-cart", path: "/worker/sales" },
-    { label: "Cierre de Caja", icon: "lucide:clipboard-check", path: "/worker/close-register" },
   ];
   
   const adminNavItems: NavItem[] = [

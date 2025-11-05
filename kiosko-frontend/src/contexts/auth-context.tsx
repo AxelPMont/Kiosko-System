@@ -48,10 +48,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         clave: password
       });
 
-      const { id, username: u, rol, token, nombreCompleto } = res.data;
+      const { idUsuario, username: u, rol, token, nombreCompleto } = res.data;
 
       const mappedUser: User = {
-        id,
+        id: idUsuario,
         username: u,
         fullName: nombreCompleto,
         role: rol === "ADMINISTRADOR" ? "admin" : "worker",

@@ -65,7 +65,13 @@ const OpenRegister: React.FC = () => {
 
       // Guardamos info mínima en localStorage (puede servir para control local)
       const cajaData = response.data;
-      localStorage.setItem("registerData", JSON.stringify(cajaData));
+      const cajaAbierta = {
+        idCaja: cajaData?.idCaja || cajaData?.id || 1, // depende de cómo venga del backend
+        estado: "abierta",
+        fechaApertura: new Date().toISOString(),
+      };
+
+      localStorage.setItem("cajaAbierta", JSON.stringify(cajaAbierta));
       localStorage.setItem("registerStatus", "open");
 
       addToast({

@@ -352,7 +352,7 @@ const AdminHome: React.FC = () => {
                         {item.accion}
                       </p>
                       <p className="text-small text-default-500">
-                        {dayjs(item.fechaHora).fromNow()}
+                        {dayjs(item.fecha).fromNow()}
                       </p>
                     </div>
                   </div>
