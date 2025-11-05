@@ -32,6 +32,12 @@ public class VentaController {
         return ventaService.listarVentas(soloCompletadas);
     }
 
+    @GetMapping("/activa/{idUsuario}")
+    public ResponseEntity<VentaResponseDTO> obtenerVentaActiva(@PathVariable Long idUsuario) {
+        VentaResponseDTO ventaActiva = ventaService.obtenerVentaActivaPorUsuario(idUsuario);
+        return ResponseEntity.ok(ventaActiva);
+    }
+
     @GetMapping("/rango-fecha")
     public List<VentaResponseDTO> buscarPorRangoFecha(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin) {
         return ventaService.buscarPorRangoFecha(fechaInicio, fechaFin);

@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
@@ -25,7 +26,17 @@ public class JwtUtil {
     private Long expiration;
 
     private Key getSigningKey() {
-        byte[] keyBytes = Base64.getDecoder().decode(secretKey);
+        byte[] keyBytes;
+        try {
+            keyBytes = Base64.getDecoder().decode(secretKey);
+        } catch (IllegalArgumentException e) {
+            keyBytes = secretKey.getBytes(StandardCharsets.UTF_8);
+        }
+
+        // Validate key length (256 bits minimum for HS256)
+        if (keyBytes.length < 32) {
+            throw new IllegalArgumentException("JWT secret key debe ser de al menos 256 bits (32 bytes) para HS256");
+        }
         return Keys.hmacShaKeyFor(keyBytes);
     }
 

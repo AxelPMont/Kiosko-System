@@ -17,7 +17,6 @@ public interface VentaRepository extends JpaRepository<Venta, Long> {
     List<Venta> findByEstado(Estado estado);
     List<Venta> findByFechaHoraBetween(LocalDateTime inicio, LocalDateTime fin);
     Optional<Venta> findByCajaIdCaja(Long idCaja);
-    Optional<Venta> findByCaja(Caja caja);
 
     @Query(value = "SELECT COALESCE(SUM(total), 0) FROM ventas WHERE DATE(fecha_hora) = :date", nativeQuery = true)
     BigDecimal sumTotalByDate(@Param("date") LocalDate date);
@@ -30,4 +29,13 @@ public interface VentaRepository extends JpaRepository<Venta, Long> {
     ORDER BY DATE(fecha_hora) ASC
     """, nativeQuery = true)
     List<Object[]> getVentasUltimos7Dias();
+
+    @Query(value = """
+    SELECT v.*
+    FROM Ventas AS v
+    INNER JOIN Caja AS c ON v.id_caja = c.id_caja
+    INNER JOIN Usuario AS u ON c.id_usuario = u.id_usuario
+    WHERE u.id_usuario = :idUsuario AND c.fecha_cierre IS NULL
+    """, nativeQuery = true)
+    Optional<Venta> findVentaActivaByUsuario(@Param("idUsuario") Long idUsuario);
 }

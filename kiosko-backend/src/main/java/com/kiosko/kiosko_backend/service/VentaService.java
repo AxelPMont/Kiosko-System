@@ -50,17 +50,9 @@ public class VentaService {
         return ventas.stream().map(VentaResponseDTO::new).collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
-    public VentaResponseDTO obtenerVentaActual(Long idUsuario) {
-        Usuario usuario = usuarioRepository.findById(idUsuario)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
-
-        Caja caja = cajaRepository.findByUsuarioIdUsuarioAndFechaCierreIsNull(usuario.getIdUsuario())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No hay una caja abierta"));
-
-        // Buscar una venta activa (no completada)
-        Venta venta = ventaRepository.findByCaja(caja)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No hay una venta activa actualmente"));
+    public VentaResponseDTO obtenerVentaActivaPorUsuario(Long idUsuario) {
+        Venta venta = ventaRepository.findVentaActivaByUsuario(idUsuario)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No se encontró una venta activa para este usuario"));
 
         return new VentaResponseDTO(venta);
     }
@@ -85,7 +77,6 @@ public class VentaService {
         Caja caja = cajaRepository.findByUsuarioIdUsuarioAndFechaCierreIsNull(usuario.getIdUsuario())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Caja no encontrada"));
 
-        // Buscar si ya existe una venta asociada a la caja
         Venta venta = ventaRepository.findByCajaIdCaja(caja.getIdCaja())
                 .orElseGet(() -> {
                     Venta nuevaVenta = new Venta();
@@ -96,8 +87,6 @@ public class VentaService {
                     return ventaRepository.save(nuevaVenta);
                 });
 
-        BigDecimal total = venta.getTotal() != null ? venta.getTotal() : BigDecimal.ZERO;
-
         for (VentaRequestDTO.DetalleVentaDTO d : request.getDetalles()) {
             Producto producto = productoRepository.findById(d.getIdProducto())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Producto no encontrado"));
@@ -107,25 +96,37 @@ public class VentaService {
                         "Stock insuficiente para " + producto.getNombre());
             }
 
-            // Actualizar stock
+            DetalleVenta detalleExistente = detalleVentaRepository
+                    .findByVentaIdVentaAndProductoIdProducto(venta.getIdVenta(), producto.getIdProducto())
+                    .orElse(null);
+
+            if (detalleExistente != null) {
+                int nuevaCantidad = detalleExistente.getCantidad() + d.getCantidad();
+                detalleExistente.setCantidad(nuevaCantidad);
+                detalleExistente.setSubtotal(detalleExistente.getPrecioUnitario().multiply(BigDecimal.valueOf(nuevaCantidad)));
+                detalleVentaRepository.save(detalleExistente);
+            } else {
+                DetalleVenta nuevoDetalle = new DetalleVenta();
+                nuevoDetalle.setVenta(venta);
+                nuevoDetalle.setProducto(producto);
+                nuevoDetalle.setCantidad(d.getCantidad());
+                nuevoDetalle.setPrecioUnitario(d.getPrecioUnitario());
+                nuevoDetalle.setSubtotal(d.getPrecioUnitario().multiply(BigDecimal.valueOf(d.getCantidad())));
+                detalleVentaRepository.save(nuevoDetalle);
+            }
+
+            // 🔽 Actualizar stock del producto
             producto.setStockActual(producto.getStockActual() - d.getCantidad());
             productoRepository.save(producto);
-
-            // Crear detalle
-            DetalleVenta detalle = new DetalleVenta();
-            detalle.setVenta(venta);
-            detalle.setProducto(producto);
-            detalle.setCantidad(d.getCantidad());
-            detalle.setPrecioUnitario(d.getPrecioUnitario());
-            detalle.setSubtotal(d.getPrecioUnitario().multiply(BigDecimal.valueOf(d.getCantidad())));
-            detalleVentaRepository.save(detalle);
-
-            total = total.add(detalle.getSubtotal());
         }
 
-        // Actualizar el total de la venta acumulada
-        venta.setTotal(total);
-        venta = ventaRepository.save(venta);
+        BigDecimal totalActualizado = detalleVentaRepository.findByVentaIdVenta(venta.getIdVenta())
+                .stream()
+                .map(DetalleVenta::getSubtotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        venta.setTotal(totalActualizado);
+        ventaRepository.save(venta);
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();

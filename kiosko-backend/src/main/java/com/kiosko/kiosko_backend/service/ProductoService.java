@@ -29,11 +29,11 @@ public class ProductoService {
     private final CodigoBarrasRepository codigoBarrasRepository;
     private final ActividadService actividadService;
 
-    public ProductoService(ProductoRepository productoRepository, CategoriaProductoRepository categoriaRepostory, CodigoBarrasRepository codigoBarrasRepository, DetalleVentaRepository detalleVentaRepository, ActividadRepository actividadRepository, CodigoBarrasRepository codigoBarrasRepository1, ActividadService actividadService) {
+    public ProductoService(ProductoRepository productoRepository, CategoriaProductoRepository categoriaRepostory, CodigoBarrasRepository codigoBarrasRepository, DetalleVentaRepository detalleVentaRepository, ActividadService actividadService) {
         this.productoRepository = productoRepository;
         this.categoriaRepository = categoriaRepostory;
         this.detalleVentaRepository = detalleVentaRepository;
-        this.codigoBarrasRepository = codigoBarrasRepository1;
+        this.codigoBarrasRepository = codigoBarrasRepository;
         this.actividadService = actividadService;
     }
 

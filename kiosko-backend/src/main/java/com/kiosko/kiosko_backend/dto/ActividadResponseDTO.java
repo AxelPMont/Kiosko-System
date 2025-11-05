@@ -13,7 +13,7 @@ public class ActividadResponseDTO {
         this.usuario = actividad.getUsuario();
         this.accion = actividad.getAccion();
         this.icono = actividad.getIcono();
-        this.fecha = actividad.getFechaHora().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+        this.fecha = actividad.getFechaHora().toString();
     }
 
     // Getters

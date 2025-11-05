@@ -7,6 +7,7 @@ import com.kiosko.kiosko_backend.model.Caja.Estado;
 import com.kiosko.kiosko_backend.model.Usuario;
 import com.kiosko.kiosko_backend.repository.CajaRepository;
 import com.kiosko.kiosko_backend.repository.UsuarioRepository;
+import com.kiosko.kiosko_backend.repository.VentaRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,11 +26,13 @@ public class CajaService {
     private final CajaRepository cajaRepository;
     private final UsuarioRepository usuarioRepository;
     private final ActividadService actividadService;
+    private final VentaRepository ventaRepository;
 
-    public CajaService(CajaRepository cajaRepository, UsuarioRepository usuarioRepository, ActividadService actividadService) {
+    public CajaService(CajaRepository cajaRepository, UsuarioRepository usuarioRepository, ActividadService actividadService, VentaRepository ventaRepository) {
         this.cajaRepository = cajaRepository;
         this.usuarioRepository = usuarioRepository;
         this.actividadService = actividadService;
+        this.ventaRepository = ventaRepository;
     }
 
     @Transactional
@@ -58,13 +61,22 @@ public class CajaService {
     }
 
     @Transactional
-    public CajaResponseDTO cerrarCaja(Long idCaja, BigDecimal montoCierre) {
+    public CajaResponseDTO cerrarCaja(Long idCaja, BigDecimal montoCierreManual) {
         Caja caja = cajaRepository.findById(idCaja)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Caja no encontrada"));
 
         if (caja.getEstado() == Estado.CERRADA) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La caja ya está cerrada");
         }
+
+        // Obtener todas las ventas de esta caja
+        BigDecimal totalVentas = ventaRepository.findByCajaIdCaja(idCaja)
+                .stream()
+                .map(v -> v.getTotal() != null ? v.getTotal() : BigDecimal.ZERO)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        // Calcular el monto total de cierre
+        BigDecimal montoCierre = caja.getMontoApertura().add(totalVentas);
 
         caja.setFechaCierre(LocalDateTime.now());
         caja.setMontoCierre(montoCierre);

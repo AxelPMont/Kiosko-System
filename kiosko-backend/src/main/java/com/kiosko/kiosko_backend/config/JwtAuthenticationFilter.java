@@ -5,6 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -47,11 +48,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             // Validar el token
             if (!jwtUtil.isTokenExpired(token)) {
+                List<SimpleGrantedAuthority> authorities = Collections.singletonList(
+                        new SimpleGrantedAuthority("ROLE_USER")
+                );
+
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(
                                 username,
                                 null,
-                                List.of(() -> "ROLE_USER")
+                                authorities
                         );
 
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

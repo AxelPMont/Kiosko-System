@@ -35,12 +35,12 @@ public class UsuarioController {
         return usuarioService.registrarUsuario(request);
     }
 
-    @PutMapping("/{id}")
-    public UsuarioResponseDTO actualizarUsuario(
-            @PathVariable Long id,
-            @Valid @RequestBody UsuarioRequestDTO request) {
-        return usuarioService.actualizarUsuario(id, request);
-    }
+//    @PutMapping("/{id}")
+//    public UsuarioResponseDTO actualizarUsuario(
+//            @PathVariable Long id,
+//            @Valid @RequestBody UsuarioRequestDTO request) {
+//        return usuarioService.actualizarUsuario(id, request);
+//    }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)

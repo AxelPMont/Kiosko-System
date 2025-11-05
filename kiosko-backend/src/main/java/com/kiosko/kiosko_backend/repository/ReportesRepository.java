@@ -16,19 +16,16 @@ public interface ReportesRepository extends JpaRepository<Venta, Long> {
         SELECT DATE(fecha_hora) as fecha, SUM(total)
         FROM ventas
         WHERE DATE(fecha_hora) BETWEEN :inicio AND :fin
-        GROUP BY fecha_hora
-        ORDER BY fecha_hora ASC;
+        GROUP BY fecha;
     """, nativeQuery = true)
     List<Object[]> obtenerVentasPorDia(@Param("inicio") LocalDate inicio, @Param("fin") LocalDate fin);
 
     // Ventas agrupadas por día
     @Query(value = """
-        SELECT SUM(dv.cantidad)
+        SELECT COALESCE(SUM(dv.cantidad), 0)
         FROM ventas v
-        INNER JOIN detalle_ventas as dv
+        INNER JOIN detalle_ventas dv ON v.id_venta = dv.id_venta
         WHERE DATE(v.fecha_hora) BETWEEN :inicio AND :fin
-        GROUP BY v.fecha_hora
-        ORDER BY v.fecha_hora ASC;
     """, nativeQuery = true)
     Long obtenerTransaccionesPorDia(@Param("inicio") LocalDate inicio, @Param("fin") LocalDate fin);
 
@@ -41,7 +38,7 @@ public interface ReportesRepository extends JpaRepository<Venta, Long> {
         WHERE DATE(v.fecha_hora) BETWEEN :inicio AND :fin
         GROUP BY p.nombre
         ORDER BY COUNT(dv.id_detalle) DESC
-        LIMIT 5
+        LIMIT 5;
     """, nativeQuery = true)
     List<Object[]> obtenerTopProductos(@Param("inicio") LocalDate inicio, @Param("fin") LocalDate fin);
 

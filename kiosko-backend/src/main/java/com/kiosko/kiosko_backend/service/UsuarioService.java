@@ -55,19 +55,21 @@ public class UsuarioService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional
-    public UsuarioResponseDTO actualizarUsuario(Long id, UsuarioRequestDTO request) {
-        Usuario existente = usuarioRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
-
-        existente.setNombreUsuario(request.getNombreUsuario());
-        existente.setNombreCompleto(request.getNombreCompleto());
-        existente.setClave(request.getClave());
-        existente.setRol(request.getRol());
-        existente.setEstado(request.getEstado());
-
-        return new UsuarioResponseDTO(usuarioRepository.save(existente));
-    }
+//    @Transactional
+//    public UsuarioResponseDTO actualizarUsuario(Long id, UsuarioRequestDTO request) {
+//        Usuario existente = usuarioRepository.findById(id)
+//                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
+//
+//        existente.setNombreUsuario(request.getNombreUsuario());
+//        existente.setNombreCompleto(request.getNombreCompleto());
+//        if (request.getClave() != null && !request.getClave().trim().isEmpty()) {
+//            existente.setClave(passwordEncoder.encode(request.getClave()));
+//        }
+//        existente.setRol(request.getRol());
+//        existente.setEstado(request.getEstado());
+//
+//        return new UsuarioResponseDTO(usuarioRepository.save(existente));
+//    }
 
     @Transactional
     public void eliminarUsuario(Long id) {
